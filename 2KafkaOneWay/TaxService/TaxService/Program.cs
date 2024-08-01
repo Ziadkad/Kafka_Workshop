@@ -1,6 +1,7 @@
 
 using Producer.Services;
-using Producer.Services.Interfaces;
+using TaxService.Services;
+using TaxService.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

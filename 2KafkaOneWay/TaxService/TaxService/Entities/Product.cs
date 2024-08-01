@@ -1,4 +1,4 @@
-﻿namespace Producer.Entities;
+﻿namespace TaxService.Entities;
 
 public class Product
 {

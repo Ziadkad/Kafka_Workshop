@@ -1,6 +1,6 @@
-﻿using Producer.Entities;
+﻿using TaxService.Entities;
 
-namespace Producer.Services.Interfaces;
+namespace TaxService.Services.Interfaces;
 
 public interface IProductService
 {
