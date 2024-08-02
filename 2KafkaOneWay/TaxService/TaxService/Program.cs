@@ -1,5 +1,6 @@
 
 using Producer.Services;
+using TaxService.Broker.Consumers;
 using TaxService.Services;
 using TaxService.Services.Interfaces;
 
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IAddTaxesToProducts, AddTaxesToProducts>();
+
+builder.Services.AddHostedService<ProductListConsumer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

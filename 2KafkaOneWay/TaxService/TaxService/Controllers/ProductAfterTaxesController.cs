@@ -23,8 +23,18 @@ public class ProductAfterTaxesController :ControllerBase
         try
         {
             List<Product> products = await _productService.GetAllProducts();
-            products = products.Select<Product, Product>(p => _addTaxesToProducts.AddTaxesToProductPrice(p)).ToList();
-            return Ok(products);
+            List<Product> productsWithTaxes = products.Select(p => 
+            {
+                // Shallow Copy
+                Product productCopy = new Product
+                {
+                    Id = p.Id,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                };
+                return _addTaxesToProducts.AddTaxesToProductPrice(productCopy);
+            }).ToList();
+            return Ok(productsWithTaxes);
         }
         catch (Exception e)
         {
