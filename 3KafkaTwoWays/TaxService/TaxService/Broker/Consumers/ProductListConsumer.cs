@@ -12,7 +12,7 @@ public class ProductListConsumer : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly IConsumer<Ignore, string> _consumer;
     private readonly ILogger<ProductListConsumer> _logger;
-    private const string TOPIC = "ProductListForTaxService";
+    private readonly string _productServiceRequestTopic;
     public ProductListConsumer(IConfiguration configuration, IServiceProvider serviceProvider, ILogger<ProductListConsumer> logger)
     {
         ConsumerConfig consumerConfig = new ConsumerConfig
@@ -24,12 +24,13 @@ public class ProductListConsumer : BackgroundService
         _consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _productServiceRequestTopic = configuration["Kafka:ProductServiceRequestTopic"];
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Kafka consumer service starting.");
-        _consumer.Subscribe(TOPIC);
+        _consumer.Subscribe(_productServiceRequestTopic);
         try
         {
             while (!stoppingToken.IsCancellationRequested)

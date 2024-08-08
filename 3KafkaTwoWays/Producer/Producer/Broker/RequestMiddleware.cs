@@ -8,9 +8,8 @@ public class RequestMiddleware : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly IConsumer<Ignore, string> _consumer;
     private readonly ILogger<RequestMiddleware> _logger;
-    private const string MAIN_TOPIC = "ProductServiceMiddleware";
-
-    private const string TOPIC_FOR_TAX_SERVICE = "ProductListForTaxService";
+    private readonly string _middlewareTopic;
+    private readonly string _taxService;
     public RequestMiddleware(IConfiguration configuration, IServiceProvider serviceProvider, ILogger<RequestMiddleware> logger)
     {
         ConsumerConfig consumerConfig = new ConsumerConfig
@@ -22,17 +21,15 @@ public class RequestMiddleware : BackgroundService
         _consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
         _serviceProvider = serviceProvider;
         _logger = logger;
-
-        _consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
-        _serviceProvider = serviceProvider;
-        _logger = logger;
+        _middlewareTopic = configuration["Kafka:MiddlewareTopic"];
+        _taxService = configuration["Kafka:TaxServiceTopic"];
     }
     
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Kafka consumer service starting.");
-        _consumer.Subscribe(MAIN_TOPIC);
+        _consumer.Subscribe(_middlewareTopic);
         try
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -68,11 +65,11 @@ public class RequestMiddleware : BackgroundService
                 _logger.LogInformation($"Kafka message consumed: {message}");
                 switch (message)
                 {
-                    case TOPIC_FOR_TAX_SERVICE:
+                    case var msg when msg == _taxService:
                         using (var scope = _serviceProvider.CreateScope())
                         {
                             ProductListProducer productListProducer = scope.ServiceProvider.GetRequiredService<ProductListProducer>();
-                            await productListProducer.ProduceAsync(TOPIC_FOR_TAX_SERVICE);
+                            await productListProducer.ProduceAsync(_taxService);
                         }
                         break;
                     

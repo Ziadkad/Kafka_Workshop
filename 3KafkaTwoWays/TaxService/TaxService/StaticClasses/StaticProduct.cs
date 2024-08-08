@@ -15,8 +15,7 @@ public static class StaticProduct
         Products.AddRange(products);
         Loading.TrySetResult(); 
     }
-
-
+    
     public static void ResetLoading()
     {
         Loading = new TaskCompletionSource();

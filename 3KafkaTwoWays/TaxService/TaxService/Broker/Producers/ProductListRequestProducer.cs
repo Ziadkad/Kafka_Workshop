@@ -10,8 +10,8 @@ public class ProductListRequestProducer
     private readonly IProducer<Null, string> _producer;
     private readonly ILogger<ProductListRequestProducer> _logger;
 
-    private const string TOPIC_FOR_REQUEST = "ProductServiceMiddleware";
-    private const string TOPIC_FOR_PRODUCT_REQUEST = "ProductListForTaxService";
+    private readonly string _productMiddlewareTopic;
+    private readonly string _productServiceRequestTopic;
     public ProductListRequestProducer(IConfiguration configuration, IServiceProvider serviceProvider,ILogger<ProductListRequestProducer> logger)
     {
         _serviceProvider = serviceProvider;
@@ -22,21 +22,23 @@ public class ProductListRequestProducer
             BootstrapServers = _configuration["Kafka:BootstrapServers"]
         };
         _producer = new ProducerBuilder<Null, string>(producerconfig).Build();
+        _productMiddlewareTopic = _configuration["Kafka:ProductMiddlewareTopic"];
+        _productServiceRequestTopic = _configuration["Kafka:ProductServiceRequestTopic"];
     }
 
     public async Task ProduceAsync()
     {
         try
         {
-            var kafkaMessage = new Message<Null, string> { Value =  TOPIC_FOR_PRODUCT_REQUEST};
-            _logger.LogInformation($"Producing message to Kafka topic {TOPIC_FOR_REQUEST}");
+            var kafkaMessage = new Message<Null, string> { Value =  _productServiceRequestTopic};
+            _logger.LogInformation($"Producing message to Kafka topic {_productMiddlewareTopic}");
 
-            await _producer.ProduceAsync(TOPIC_FOR_REQUEST, kafkaMessage);
-            _logger.LogInformation($"Message produced successfully to topic {TOPIC_FOR_REQUEST}");
+            await _producer.ProduceAsync(_productMiddlewareTopic, kafkaMessage);
+            _logger.LogInformation($"Message produced successfully to topic {_productMiddlewareTopic}");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"An error occurred while producing message to Kafka topic {TOPIC_FOR_REQUEST}");
+            _logger.LogError(e, $"An error occurred while producing message to Kafka topic {_productMiddlewareTopic}");
         }
     }
 }
